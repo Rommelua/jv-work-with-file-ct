@@ -1,10 +1,10 @@
 package model;
 
-public class DataFromFile {
+public class Operation {
     private String operationType;
     private int value;
 
-    public DataFromFile(String operationType, int value) {
+    public Operation(String operationType, int value) {
         this.operationType = operationType;
         this.value = value;
     }

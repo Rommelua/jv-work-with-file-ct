@@ -7,29 +7,32 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import model.DataFromFile;
+import model.Operation;
 
 public class WorkWithFile {
 
     public void getStatistic(String fromFileName, String toFileName) {
         //read from a file
-        List<DataFromFile> dataFromFiles = readFromFile(fromFileName);
+        List<Operation> operations = readFromFile(fromFileName);
+        //create a report
+        String report = createReport(operations);
         //write the result to file
-        writeToFile(toFileName,analyzeData(dataFromFiles));
+
+        writeToFile(toFileName, report);
     }
 
-    private List<DataFromFile> readFromFile(String fromFile) {
-        List<DataFromFile> inputData = new ArrayList<>();
+    private List<Operation> readFromFile(String fromFile) {
+        List<Operation> inputData = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(fromFile))) {
             String[] inputSplitedLine = new String[2];
             String line;
             while ((line = reader.readLine()) != null) {
                 inputSplitedLine = line.split(",");
-                inputData.add(new DataFromFile(inputSplitedLine[0],
+                inputData.add(new Operation(inputSplitedLine[0],
                                 Integer.valueOf(inputSplitedLine[1])));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Can`t read data from file " + fromFile, e);
         }
         return inputData;
     }
@@ -38,13 +41,14 @@ public class WorkWithFile {
         try (PrintWriter outputToFile = new PrintWriter(new FileWriter(toFile))) {
             outputToFile.print(result);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Can`t write data from file " + toFile, e);
         }
     }
-    private String analyzeData(List<DataFromFile> input) {
+
+    private String createReport(List<Operation> input) {
         int supplyValue = 0;
         int buyValue = 0;
-        for (DataFromFile elem:input) {
+        for (Operation elem:input) {
             if (elem.getOperationType().equals("supply")) {
                 supplyValue += elem.getValue();
             } else {
