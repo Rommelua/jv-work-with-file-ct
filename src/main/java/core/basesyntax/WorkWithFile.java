@@ -41,7 +41,7 @@ public class WorkWithFile {
         try (PrintWriter outputToFile = new PrintWriter(new FileWriter(toFile))) {
             outputToFile.print(result);
         } catch (IOException e) {
-            throw new RuntimeException("Can`t write data from file " + toFile, e);
+            throw new RuntimeException("Can`t write data to file " + toFile, e);
         }
     }
 
