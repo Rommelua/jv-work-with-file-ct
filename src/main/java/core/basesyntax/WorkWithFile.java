@@ -1,54 +1,59 @@
 package core.basesyntax;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class WorkWithFile {
-    private int sumSupply = 0;
-    private int sumBuy = 0;
+    private static final int INDEX_OF_OPERATION = 0;
+    private static final int INDEX_OF_AMOUNT = 1;
 
     public void getStatistic(String fromFileName, String toFileName) {
-        readFile(fromFileName);
-        createReport(toFileName);
+        List<String> dataFromFile = readFile(fromFileName);
+        String report = createReport(dataFromFile);
+        writeToFile(report, toFileName);
     }
 
-    private void readFile(String fromFileName) {
-        File csvFileReader = new File(fromFileName);
-        try (Scanner csvScanner = new Scanner(csvFileReader)) {
-            calculateData(csvScanner);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Can't read data from the file " + fromFileName, e);
+    private List<String> readFile(String fromFileName) {
+        Path path = Paths.get(fromFileName);
+        try {
+            return Files.readAllLines(path);
+        } catch (IOException e) {
+            throw new RuntimeException("File not found, " + e);
         }
     }
 
-    private void calculateData(Scanner csvScanner) {
-        while (csvScanner.hasNextLine()) {
-            String firstLineFromFile = csvScanner.nextLine();
-            String[] separatedData = firstLineFromFile.split(",");
-            String operation = separatedData[0];
-            int number = Integer.parseInt(separatedData[1]);
-            if (operation.equals("supply")) {
-                sumSupply = sumSupply + number;
+    private String createReport(List<String> dataFromFile) {
+        String lineOfDataFromFile;
+        String[] separatedData;
+        String operationType;
+        int amount;
+        int sumSupply = 0;
+        int sumBuy = 0;
+        for (String line : dataFromFile) {
+            lineOfDataFromFile = line;
+            separatedData = lineOfDataFromFile.split(",");
+            operationType = separatedData[INDEX_OF_OPERATION];
+            amount = Integer.parseInt(separatedData[INDEX_OF_AMOUNT]);
+            if (operationType.equals("supply")) {
+                sumSupply = sumSupply + amount;
             } else {
-                sumBuy = sumBuy + number;
+                sumBuy = sumBuy + amount;
             }
         }
+        return "supply," + sumSupply + System.lineSeparator()
+                + "buy," + sumBuy + System.lineSeparator()
+                + "result," + (sumSupply - sumBuy);
     }
 
-    private void createReport(String toFileName) {
-        try (FileWriter csvFileWriter = new FileWriter(toFileName)) {
-            writeToReport(csvFileWriter);
+    private void writeToFile(String report, String toFileName) {
+        Path path = Paths.get(toFileName);
+        try {
+            Files.writeString(path, report);
         } catch (IOException e) {
-            throw new RuntimeException("Can't write data to the file " + toFileName, e);
+            throw new RuntimeException("Can't create file, " + e);
         }
-    }
-
-    private void writeToReport(FileWriter csvFileWriter) throws IOException {
-        csvFileWriter.write("supply," + sumSupply + System.lineSeparator());
-        csvFileWriter.write("buy," + sumBuy + System.lineSeparator());
-        csvFileWriter.write("result," + (sumSupply - sumBuy));
     }
 }
