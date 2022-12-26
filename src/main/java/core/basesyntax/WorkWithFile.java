@@ -21,26 +21,21 @@ public class WorkWithFile {
         try {
             return Files.readAllLines(path);
         } catch (IOException e) {
-            throw new RuntimeException("File not found, " + e);
+            throw new RuntimeException("Can't read file: " + fromFileName, e);
         }
     }
 
     private String createReport(List<String> dataFromFile) {
-        String lineOfDataFromFile;
-        String[] separatedData;
-        String operationType;
-        int amount;
         int sumSupply = 0;
         int sumBuy = 0;
         for (String line : dataFromFile) {
-            lineOfDataFromFile = line;
-            separatedData = lineOfDataFromFile.split(",");
-            operationType = separatedData[INDEX_OF_OPERATION];
-            amount = Integer.parseInt(separatedData[INDEX_OF_AMOUNT]);
+            String[] separatedData = line.split(",");
+            String operationType = separatedData[INDEX_OF_OPERATION];
+            int amount = Integer.parseInt(separatedData[INDEX_OF_AMOUNT]);
             if (operationType.equals("supply")) {
-                sumSupply = sumSupply + amount;
+                sumSupply += amount;
             } else {
-                sumBuy = sumBuy + amount;
+                sumBuy += amount;
             }
         }
         return "supply," + sumSupply + System.lineSeparator()
@@ -53,7 +48,7 @@ public class WorkWithFile {
         try {
             Files.writeString(path, report);
         } catch (IOException e) {
-            throw new RuntimeException("Can't create file, " + e);
+            throw new RuntimeException("Can't create file, " + toFileName, e);
         }
     }
 }
